@@ -1,0 +1,67 @@
+1. Открыть проект в VS code
+
+2. В проекте в файле settings.py: 
+    2.1 в блоке INSTALLED_APPS добавить название проекта
+    'chatbot',
+
+    2.2 подключить  templates 
+     в блоке TEMPLATES  в строчке в квадратных скобках пишем 
+     'DIRS': [BASE_DIR / 'templates'] 
+
+    2.3 подключить static (папку static перенесла из папки приложения в общую папку, чтобы сократить путь)
+    под блоком TEMPLATES добавляем 
+    STATIC_URL = 'static/'
+    и добавляем переменную STATICFILES_DIRS, где прописывеам пути до конкретных статических файлов
+    STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+    BASE_DIR / 'static/chatbot',
+    ]
+
+3. Настройка маршрутизации - чтобы не прописывать urls в файле urls каждый раз нужно:
+    3.1 в приложении chatbot создаем файл urls.py и копируем из файла проекта urls.py в проекте код.
+from django.urls import path
+from chatbot import views 
+
+urlpatterns = [
+    path('', views.start),
+    path('chatbot/', views.chatbot, name='chatbot'), # убрала букву s из name='chatbots'
+    path('stats', views.stats, name='stats') # добавила s  в name='stat'
+]
+
+    3.2 переходим в основном urls.py
+from django.contrib import admin # импортируем модуль, который предоставляет возможности для настройки и использования административной панели Django
+from django.urls import path, include # добавить include. 
+path: используется для определения отдельных маршрутов и связывания их с представлениями.
+include: используется для включения других URL-конфигураций, что помогает структурировать маршруты по приложениям
+from chatbot import views # удалить импортирование 
+
+заменить код на:
+urlpatterns = [
+    path('admin/', admin.site.urls), # маршрут для административной панели
+    path('', include('chatbot.urls'), name='start') # добавляем обращение к urls.py приложения chatbot
+]
+
+В основном urls.py проекта функция path('stats', views.stats, name='stat') не упоминается напрямую, потому что она уже определена в файле chatbot/urls.py.
+Когда мы включаем chatbot/urls.py в основной файл urls.py проекта с помощью include('chatbot.urls'), все маршруты, определенные в chatbot/urls.py,
+автоматически становятся доступными в проекте. Это включает маршрут для stats.
+
+
+4. Запустить сервер в терминале VS code
+python .\manage.py runserver
+перейти по адресу
+
+Справочно: Чтобы убрать ошибку при запуске сервера
+python .\manage.py makemigrations
+появляется сообщение : No changes detected
+python .\manage.py migrate
+
+
+5. в папку fastapi проекта нейро-сотрудника добавить файл env. с ключом OPENAI API 
+через PowerShell зайти в папку fastapi проекта нейро-сотрудника
+запустить через команду 
+uvicorn main:app --port 8000
+
+6. Переходим на страницу с ботом и общаемся
+
+По окончании закрыть сервер ctrl+c
+
